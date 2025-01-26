@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from random import randint
-
 from faker import Faker
 
 from app import app
@@ -10,12 +9,9 @@ from models import db, Article, User
 fake = Faker()
 
 with app.app_context():
-
     print("Deleting all records...")
     Article.query.delete()
     User.query.delete()
-
-    fake = Faker()
 
     print("Creating users...")
     users = [User(name=fake.name()) for i in range(25)]
@@ -32,12 +28,11 @@ with app.app_context():
             title=fake.sentence(),
             content=content,
             preview=preview,
-            minutes_to_read=randint(1,20),
+            minutes_to_read=randint(1, 20),
         )
 
         articles.append(article)
 
     db.session.add_all(articles)
-    
     db.session.commit()
     print("Complete.")

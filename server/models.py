@@ -18,8 +18,9 @@ class Article(db.Model, SerializerMixin):
     preview = db.Column(db.String)
     minutes_to_read = db.Column(db.Integer)
     date = db.Column(db.DateTime, server_default=db.func.now())
-
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    serialize_rules = ('-user.articles',)  # Exclude circular relationship during serialization
 
     def __repr__(self):
         return f'Article {self.id} by {self.author}'
@@ -31,6 +32,8 @@ class User(db.Model, SerializerMixin):
     name = db.Column(db.String)
 
     articles = db.relationship('Article', backref='user')
+
+    serialize_rules = ('-articles.user',)  # Avoid circular serialization
 
     def __repr__(self):
         return f'User {self.name}, ID {self.id}'

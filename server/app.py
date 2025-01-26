@@ -17,18 +17,28 @@ db.init_app(app)
 
 @app.route('/clear')
 def clear_session():
-    session['page_views'] = 0
-    return {'message': '200: Successfully cleared session data.'}, 200
+    session.clear()  # Reset the entire session
+    return {'message': 'Session cleared successfully'}, 200
 
 @app.route('/articles')
 def index_articles():
+    articles = Article.query.all()
+    return jsonify([article.to_dict() for article in articles]), 200
 
-    pass
-
-@app.route('/articles/<int:id>')
+@app.route('/articles/<int:id>', methods=['GET'])
 def show_article(id):
+    # Initialize page_views if not set
+    session['page_views'] = session.get('page_views', 0) + 1
 
-    pass
+    if session['page_views'] > 3:
+        return {'message': 'Maximum pageview limit reached'}, 401
+
+    article = Article.query.filter_by(id=id).first()
+
+    if not article:
+        return {'error': 'Article not found'}, 404
+
+    return jsonify(article.to_dict()), 200
 
 if __name__ == '__main__':
     app.run(port=5555)
